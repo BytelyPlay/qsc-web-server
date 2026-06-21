@@ -1,5 +1,5 @@
 package net.bytelyplay.qscwebbackend.utils.offers;
 
-public interface Offer<T> {
-    boolean isValid(T offerValue, String username);
+public interface Offer {
+    boolean isValid(String offerValue, String username);
 }

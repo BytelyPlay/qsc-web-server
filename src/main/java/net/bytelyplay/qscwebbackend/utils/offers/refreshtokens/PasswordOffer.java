@@ -4,7 +4,7 @@ import lombok.Getter;
 
 import java.sql.Ref;
 
-public class PasswordOffer implements RefreshTokenOffer<String> {
+public class PasswordOffer implements RefreshTokenOffer {
     @Getter
     private static final PasswordOffer instance = new PasswordOffer();
 
