@@ -12,32 +12,33 @@ import tools.jackson.databind.node.ObjectNode;
 
 @CommonsLog
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 public class AuthenticationAPI {
     private static final ObjectMapper MAP =
             new ObjectMapper();
 
     // TODO: Make constants
-    @PostMapping("/authenticate")
+    @PostMapping("/refreshtoken")
     public ResponseEntity<JsonNode> authenticate(@RequestBody ObjectNode requestBody) {
+        JsonNode exchangeType = requestBody.get("exchange_type");
+
         JsonNode credentialsJsonNode = requestBody.get("credentials");
 
         JsonNode usernameNode = credentialsJsonNode.get("username");
-        JsonNode passwordNode = credentialsJsonNode.get("password");
+        JsonNode offerValueNode = credentialsJsonNode.get("offer_value");
 
-        if (!credentialsJsonNode.isObject())
-            return ResponseEntity
-                    .badRequest()
-                    .body(failureJson("bad_request_body"));
-        if (!usernameNode.isString() || !passwordNode.isString())
+        if (!usernameNode.isString() ||
+                !offerValueNode.isString() || !exchangeType.isString()
+                || !credentialsJsonNode.isObject())
             return ResponseEntity.badRequest()
                     .body(failureJson("bad_request_body"));
 
-
+        return null;
     }
     private ObjectNode failureJson(String what) {
         ObjectNode failureNode = MAP.createObjectNode();
-
         failureNode.put("what", what);
+
+        return failureNode;
     }
 }
