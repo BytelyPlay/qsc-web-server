@@ -24,9 +24,24 @@ public class AuthenticationAPI {
     private static final ObjectMapper MAP =
             new ObjectMapper();
 
-    // TODO: Make constants and clean up
+    // TODO: clean up
+
+    /**
+     * Try to get a refresh token.
+     *
+     * @param requestBody The request body, should look like: {
+     *                    "offer_type": "offer-type (e.g. password)"
+     *                    "credentials": {
+     *                      "username": "the username",
+     *                      "offer_value": "the value of the offer (e.g. password)"
+     *                    }
+     * }
+     * @return Some form of failure or success which would look like: {
+     *     "refresh_token": "token"
+     * }
+     */
     @PostMapping("/refreshtoken")
-    public ResponseEntity<JsonNode> authenticate(@RequestBody ObjectNode requestBody) {
+    public ResponseEntity<JsonNode> refreshToken(@RequestBody ObjectNode requestBody) {
         JsonNode offerTypeNode = requestBody.get("offer_type");
         JsonNode credentialsJsonNode = requestBody.get("credentials");
 
@@ -36,6 +51,36 @@ public class AuthenticationAPI {
         if (!allNodesValid(offerTypeNode, credentialsJsonNode, usernameNode, offerValueNode))
             return RequestResponses.BAD_REQUEST_BODY;
 
+        return getRefreshToken(
+                offerTypeNode, usernameNode,
+                offerValueNode
+        );
+    }
+
+    private ResponseEntity<JsonNode> successfulAuthentication(RefreshToken token) {
+        ObjectNode root = MAP.createObjectNode();
+
+        root.put("refresh_token", token.getTokenAsString());
+
+        return ResponseEntity.ok()
+                .body(root);
+    }
+
+    private boolean allNodesValid(
+            JsonNode offerTypeNode,
+            JsonNode credentialsJsonNode,
+            JsonNode usernameNode,
+            JsonNode offerValueNode
+    ) {
+        return !usernameNode.isString() ||
+                !offerValueNode.isString() || !offerTypeNode.isString()
+                || !credentialsJsonNode.isObject();
+    }
+    private ResponseEntity<JsonNode> getRefreshToken(
+            JsonNode offerTypeNode,
+            JsonNode usernameNode,
+            JsonNode offerValueNode
+    ) {
         Optional<RefreshTokenOfferType> optOfferType =
                 RefreshTokenOfferType.getOfferFromString(
                         offerTypeNode.asString()
@@ -57,25 +102,5 @@ public class AuthenticationAPI {
             return successfulAuthentication(optRefreshToken.orElseThrow());
         else
             return RequestResponses.OFFER_NOT_VALID;
-    }
-
-    private ResponseEntity<JsonNode> successfulAuthentication(RefreshToken token) {
-        ObjectNode root = MAP.createObjectNode();
-
-        root.put("refresh_token", token.getTokenAsString());
-
-        return ResponseEntity.ok()
-                .body(root);
-    }
-
-    private boolean allNodesValid(
-            JsonNode offerTypeNode,
-            JsonNode credentialsJsonNode,
-            JsonNode usernameNode,
-            JsonNode offerValueNode
-    ) {
-        return !usernameNode.isString() ||
-                !offerValueNode.isString() || !offerTypeNode.isString()
-                || !credentialsJsonNode.isObject();
     }
 }

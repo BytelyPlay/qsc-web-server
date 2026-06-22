@@ -13,12 +13,13 @@ public enum RefreshTokenOfferType {
     private final String offerString;
 
     @Getter
-    private final RefreshTokenOffer<?> refreshTokenOffer;
+    private final RefreshTokenOffer refreshTokenOffer;
 
-    RefreshTokenOfferType(String offerString, RefreshTokenOffer<?> offerInstance) {
+    RefreshTokenOfferType(String offerString, RefreshTokenOffer offerInstance) {
        this.offerString = offerString;
        this.refreshTokenOffer = offerInstance;
     }
+    
     public static Optional<RefreshTokenOfferType> getOfferFromString(String offerString) {
         for (RefreshTokenOfferType offer : RefreshTokenOfferType.values())
             if (offerString.equals(offer.getOfferString()))
